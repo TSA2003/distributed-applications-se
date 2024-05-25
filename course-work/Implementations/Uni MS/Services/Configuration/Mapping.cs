@@ -8,10 +8,14 @@ namespace Services.Configuration
     {
         public Mapping()
         {
-            CreateMap<Student, StudentDto>().ReverseMap();
-            CreateMap<Course, CourseDto>().ReverseMap();
-            CreateMap<Teacher, TeacherDto>().ReverseMap();
-            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<Student, StudentDto>();
+            CreateMap<StudentDto, Student>();
+            CreateMap<Course, CourseDto>();
+            CreateMap<CourseDto, Course>();
+            CreateMap<Teacher, TeacherDto>();
+            CreateMap<TeacherDto, Teacher>();
+            CreateMap<User, UserDto>();
+            CreateMap<UserDto, User>();
         }
     }
 }

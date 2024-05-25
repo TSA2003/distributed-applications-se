@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Services.DTOs
+namespace Client.Models
 {
-    public class TeacherDto : BaseDto
+    public class TeacherViewModel
     {
+        public Guid Id { get; set; }
+
         [Required]
         [StringLength(30)]
         public string FirstName { get; set; }

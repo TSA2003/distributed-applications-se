@@ -1,4 +1,4 @@
-﻿@model Data.Entities.Course
+﻿@model Client.Models.CourseViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -34,8 +34,20 @@
             </div>
             <div class="form-group">
                 <label asp-for="TeacherId" class="control-label"></label>
-                <select asp-for="TeacherId" class="form-control" asp-items="ViewBag.TeacherId"></select>
-                <span asp-validation-for="TeacherId" class="text-danger"></span>
+                <select name="TeacherId"</select>
+                @for (int i = 0; i < Model.AvailableTeachers.Count; i++)
+                {
+                    var item = Model.AvailableTeachers[i];
+                    if (item.Id == Model.TeacherId)
+                    {
+                        <option value="@item.Id" selected>@item.FirstName @item.LastName</option>
+                    }
+                    else
+                    {
+                        <option value="@item.Id">@item.FirstName @item.LastName</option>
+                    }
+                    
+                }
             </div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">

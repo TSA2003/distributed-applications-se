@@ -7,49 +7,72 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Data;
 using Data.Entities;
+using Client.Helpers;
+using Client.Models;
+using System.Text.Json;
+using System.Reflection.Metadata;
+using System.Net;
 
 namespace Client.Controllers
 {
     public class CoursesController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly ApiClient _client;
 
-        public CoursesController(AppDbContext context)
+        public CoursesController(ApiClient client)
         {
-            _context = context;
+            _client = client;
         }
 
         // GET: Courses
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Courses.Include(c => c.Teacher);
-            return View(await appDbContext.ToListAsync());
+            var response = await _client.GetAsync<List<CourseViewModel>>("/api/courses/");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            var model = response.Data;
+
+            return View(model);
         }
 
         // GET: Courses/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null || _context.Courses == null)
+            var response = await _client.GetAsync<CourseViewModel>("/api/courses/" + id);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return NotFound();
+                return RedirectToAction("Login", "Users");
             }
 
-            var course = await _context.Courses
-                .Include(c => c.Teacher)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (course == null)
+            var model = response.Data;
+
+            if (model != null)
             {
-                return NotFound();
+                return View(model);
             }
 
-            return View(course);
+            return RedirectToAction("Index");
         }
 
         // GET: Courses/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FirstName");
-            return View();
+            var model = new CourseViewModel();
+            var response = await _client.GetAsync<List<TeacherViewModel>>("/api/teachers");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            model.AvailableTeachers = response.Data;
+
+            return View(model);
         }
 
         // POST: Courses/Create
@@ -57,89 +80,87 @@ namespace Client.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Points,StartDate,EndDate,TeacherId,Id")] Course course)
+        public async Task<IActionResult> Create([Bind("Id, Name, Points, StartDate, EndDate, TeacherId")] CourseViewModel model)
         {
             if (ModelState.IsValid)
             {
-                course.Id = Guid.NewGuid();
-                _context.Add(course);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var response = await _client.PostAsync("/api/courses/", model);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Login", "Users");
+                }                
             }
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FirstName", course.TeacherId);
-            return View(course);
+            
+            return RedirectToAction("Index");
         }
 
         // GET: Courses/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null || _context.Courses == null)
+            var coursesResponse = await _client.GetAsync<CourseViewModel>("/api/courses/" + id);
+
+            if (coursesResponse.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return NotFound();
+                return RedirectToAction("Login", "Users");
             }
 
-            var course = await _context.Courses.FindAsync(id);
-            if (course == null)
+            var model = coursesResponse.Data;
+
+            if (model != null)
             {
-                return NotFound();
+                var teachersResponse = await _client.GetAsync<List<TeacherViewModel>>("/api/teachers");
+
+                if (teachersResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Login", "Users");
+                }
+
+                model.AvailableTeachers = teachersResponse.Data;
+                return View(model);
             }
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FirstName", course.TeacherId);
-            return View(course);
+
+            return RedirectToAction("Index");
         }
 
-        // POST: Courses/Edit/5
+        // POST: Students/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Name,Points,StartDate,EndDate,TeacherId,Id")] Course course)
+        public async Task<IActionResult> Edit([Bind("Id, Name, Points, StartDate, EndDate, TeacherId")] CourseViewModel model)
         {
-            if (id != course.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                var response = await _client.PutAsync("/api/courses/", model);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Login", "Users");
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CourseExists(course.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "FirstName", course.TeacherId);
-            return View(course);
+            
+            return RedirectToAction("Index");
         }
 
         // GET: Courses/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null || _context.Courses == null)
+            var response = await _client.GetAsync<CourseViewModel>("/api/courses/" + id);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return NotFound();
+                return RedirectToAction("Login", "Users");
             }
 
-            var course = await _context.Courses
-                .Include(c => c.Teacher)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (course == null)
+            var model = response.Data;
+
+            if (model != null)
             {
-                return NotFound();
+                return View(model);
             }
 
-            return View(course);
+            return RedirectToAction("Index");
         }
 
         // POST: Courses/Delete/5
@@ -147,23 +168,14 @@ namespace Client.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            if (_context.Courses == null)
-            {
-                return Problem("Entity set 'AppDbContext.Courses'  is null.");
-            }
-            var course = await _context.Courses.FindAsync(id);
-            if (course != null)
-            {
-                _context.Courses.Remove(course);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var response = await _client.DeleteAsync<CourseViewModel>("/api/courses/" + id);
 
-        private bool CourseExists(Guid id)
-        {
-          return (_context.Courses?.Any(e => e.Id == id)).GetValueOrDefault();
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

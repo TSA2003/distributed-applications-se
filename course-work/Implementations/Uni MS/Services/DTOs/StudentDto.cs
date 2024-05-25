@@ -17,7 +17,7 @@ namespace Services.DTOs
 
         public double AverageGrade { get; set; }
 
-        public int CourseId { get; set; }
-        public string CourseName { get; set; }
+        public Guid CourseId { get; set; }
+        public string? CourseName { get; set; }
     }
 }

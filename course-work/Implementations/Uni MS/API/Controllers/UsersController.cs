@@ -1,4 +1,5 @@
-﻿using Data.Entities;
+﻿using API.Jwt;
+using Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,15 +9,17 @@ using System.Data;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private UserService _service;
+        private readonly UserService _service;
+        private readonly JwtUtils _jwtUtils;
 
-        public UsersController(UserService service)
+        public UsersController(UserService service, JwtUtils jwtUtils)
         {
             _service = service;
+            _jwtUtils = jwtUtils;
         }
 
         [AllowAnonymous]
@@ -26,7 +29,7 @@ namespace API.Controllers
             try
             {
                 var result = await _service.GetByCredentialsAsync(dto.Username, dto.Password);
-
+                result.Token = _jwtUtils.GenerateJwtToken(result);
                 return Ok(result);
             }
             catch (ArgumentException e)

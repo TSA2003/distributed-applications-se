@@ -7,42 +7,55 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Data;
 using Data.Entities;
+using Client.Helpers;
+using Client.Models;
+using System.Text.Json;
+using System.Net;
 
 namespace Client.Controllers
 {
     public class TeachersController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly ApiClient _client;
 
-        public TeachersController(AppDbContext context)
+        public TeachersController(ApiClient client)
         {
-            _context = context;
+            _client = client;
         }
 
         // GET: Teachers
         public async Task<IActionResult> Index()
         {
-              return _context.Teachers != null ? 
-                          View(await _context.Teachers.ToListAsync()) :
-                          Problem("Entity set 'AppDbContext.Teachers'  is null.");
+            var response = await _client.GetAsync<List<TeacherViewModel>>("/api/teachers");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            var model = response.Data;
+
+            return View(model);
         }
 
         // GET: Teachers/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null || _context.Teachers == null)
+            var response = await _client.GetAsync<TeacherViewModel>("/api/teachers/" + id);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return NotFound();
+                return RedirectToAction("Login", "Users");
             }
 
-            var teacher = await _context.Teachers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (teacher == null)
+            var model = response.Data;
+
+            if (model != null)
             {
-                return NotFound();
+                return View(model);
             }
 
-            return View(teacher);
+            return RedirectToAction("Index");
         }
 
         // GET: Teachers/Create
@@ -56,32 +69,39 @@ namespace Client.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,Age,Salary,EmploymentDate,Experience,Id")] Teacher teacher)
+        public async Task<IActionResult> Create([Bind("Id, FirstName, LastName, Age, Salary, EmploymentDate, Experience")] TeacherViewModel model)
         {
             if (ModelState.IsValid)
             {
-                teacher.Id = Guid.NewGuid();
-                _context.Add(teacher);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var response = await _client.PostAsync("/api/teachers/", model);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Login", "Users");
+                }
             }
-            return View(teacher);
+            
+            return RedirectToAction("Index");
         }
 
         // GET: Teachers/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null || _context.Teachers == null)
+            var response = await _client.GetAsync<TeacherViewModel>("/api/teachers/" + id);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return NotFound();
+                return RedirectToAction("Login", "Users");
             }
 
-            var teacher = await _context.Teachers.FindAsync(id);
-            if (teacher == null)
+            var model = response.Data;
+
+            if (model != null)
             {
-                return NotFound();
+                return View(model);
             }
-            return View(teacher);
+
+            return RedirectToAction("Index");
         }
 
         // POST: Teachers/Edit/5
@@ -89,52 +109,39 @@ namespace Client.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("FirstName,LastName,Age,Salary,EmploymentDate,Experience,Id")] Teacher teacher)
+        public async Task<IActionResult> Edit([Bind("Id, FirstName, LastName, Age, Salary, EmploymentDate, Experience")] TeacherViewModel model)
         {
-            if (id != teacher.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                var response = await _client.PutAsync("/api/teachers/", model);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    _context.Update(teacher);
-                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Login", "Users");
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TeacherExists(teacher.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
-            return View(teacher);
+            
+            return RedirectToAction("Index");
         }
 
         // GET: Teachers/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null || _context.Teachers == null)
+            var response = await _client.GetAsync<TeacherViewModel>("/api/teachers/" + id);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                return NotFound();
+                return RedirectToAction("Login", "Users");
             }
 
-            var teacher = await _context.Teachers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (teacher == null)
+            var model = response.Data;
+
+            if (model != null)
             {
-                return NotFound();
+                return View(model);
             }
 
-            return View(teacher);
+            return RedirectToAction("Index");
         }
 
         // POST: Teachers/Delete/5
@@ -142,23 +149,16 @@ namespace Client.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            if (_context.Teachers == null)
-            {
-                return Problem("Entity set 'AppDbContext.Teachers'  is null.");
-            }
-            var teacher = await _context.Teachers.FindAsync(id);
-            if (teacher != null)
-            {
-                _context.Teachers.Remove(teacher);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var response = await _client.DeleteAsync<TeacherViewModel>("/api/teachers/" + id);
 
-        private bool TeacherExists(Guid id)
-        {
-          return (_context.Teachers?.Any(e => e.Id == id)).GetValueOrDefault();
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            var model = response.Data;
+
+            return RedirectToAction("Index");
         }
     }
 }

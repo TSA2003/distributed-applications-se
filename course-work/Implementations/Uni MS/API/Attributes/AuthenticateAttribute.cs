@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using Services.DTOs;
 
 namespace API.Attributes
 {
@@ -22,8 +23,8 @@ namespace API.Attributes
                 return;
 
             // authorization
-            var user = (User)context.HttpContext.Items["User"];
-            if (user == null)
+            var userDto = (UserDto)context.HttpContext.Items["User"];
+            if (userDto == null)
             {
                 // not logged in or role not authorized
                 context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };

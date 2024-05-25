@@ -12,7 +12,9 @@ namespace Client
             builder.Services.AddControllersWithViews();
 
             builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
-
+            builder.Services.AddSingleton<HttpClient>();
+            builder.Services.AddSingleton<ApiClient>();
+            builder.Services.AddSingleton<SessionStorage>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -21,7 +21,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> ReadAllAsync()
         {
-            var result = _service.ReadAllAsync();
+            var result = await _service.ReadAllAsync();
             return Ok(result);
         }
 
@@ -40,7 +40,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<IActionResult> CreateAsync(TeacherDto dto)
         {
             if (!ModelState.IsValid)
@@ -80,7 +80,7 @@ namespace API.Controllers
             return NoContent();
         }        
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

@@ -1,4 +1,4 @@
-﻿@model List<Client.Models.StudentViewModel>
+﻿@model IEnumerable<Data.Entities.User>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,19 +13,10 @@
     <thead>
         <tr>
             <th>
-                FirstName
+                @Html.DisplayNameFor(model => model.Username)
             </th>
             <th>
-                LastName
-            </th>
-            <th>
-                Age
-            </th>
-            <th>
-                AverageGrade
-            </th>
-            <th>
-                Course
+                @Html.DisplayNameFor(model => model.Password)
             </th>
             <th></th>
         </tr>
@@ -34,19 +25,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
+                @Html.DisplayFor(modelItem => item.Username)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Age)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AverageGrade)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CourseName)
+                @Html.DisplayFor(modelItem => item.Password)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

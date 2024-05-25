@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Data.Entities.Teacher>
+﻿@model List<Client.Models.TeacherViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,22 +13,22 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.FirstName)
+                FirstName
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LastName)
+                LastName
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Age)
+                Age
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Salary)
+                Salary
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EmploymentDate)
+                EmploymentDate
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Experience)
+                Experience
             </th>
             <th></th>
         </tr>

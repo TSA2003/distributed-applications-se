@@ -12,13 +12,14 @@ namespace Services.DTOs
         public int Points { get; set; }
 
         [Required]
-        public DateOnly StartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         [Required]
-        public DateOnly EndDate { get; set; }
+        public DateTime EndDate { get; set; }
 
-        public int TeacherId { get; set; }
-        public string TeacherFirstName { get; set; }
-        public string TeacherLastName { get; set; }
+        public Guid TeacherId { get; set; }
+
+        public string? TeacherFirstName { get; set; }
+        public string? TeacherLastName { get; set; }
     }
 }
