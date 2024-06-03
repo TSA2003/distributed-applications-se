@@ -34,8 +34,8 @@ namespace Client.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _client.PostAsync("/api/authenticate", model);
-                _sessionStorage = response.Data.;                
+                var response = await _client.PostAsync<LoginViewModel, LoginResponseModel>("/api/authenticate", model);
+                _sessionStorage.Token = response.Data.Token;                
 
                 return RedirectToAction("Index", "Home");
             }

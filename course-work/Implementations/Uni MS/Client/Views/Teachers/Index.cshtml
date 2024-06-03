@@ -1,4 +1,4 @@
-﻿@model List<Client.Models.TeacherViewModel>
+﻿@model Client.Models.TeacherIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -9,6 +9,15 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<div class="row">
+    <div class="col-md-4">
+            <form method="get" asp-action="Index">
+                <input asp-for="FirstName" value="FirstName" />
+                <input asp-for="LastName" value="LastName" />
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </form>
+    </div>
+</div>
 <table class="table">
     <thead>
         <tr>
@@ -34,7 +43,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Data) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.FirstName)
@@ -60,6 +69,6 @@
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
-}
+}       
     </tbody>
 </table>

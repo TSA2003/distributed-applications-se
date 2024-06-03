@@ -12,7 +12,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authenticate]
+    //[Authenticate]
     public class StudentsController : ControllerBase
     {
         private readonly StudentService _service;
@@ -25,17 +25,9 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ReadAllAsync()
+        public async Task<IActionResult> ReadAllAsync([FromQuery] string? firstName, [FromQuery] string? lastName, [FromQuery] int? page)
         {
-            //Expression<Func<Student, bool>> a = (x) => x.FirstName == "A";
-
-            //ParameterExpression param1 = Expression.Parameter(typeof(Student), "entity");
-            //BinaryExpression sumBody = Expression.Add(param1, param2);
-            //var b = Expression.AndAlso(a, a);
-            //b = Expression.AndAlso(b, a);
-            //var c = Expression.Lambda<Func<Student, bool>>(b, param1);
-            //_service.ReadAllAsync(a);
-            var result = await _service.ReadAllAsync();
+            var result = await _service.ReadAllByFilterAsync(firstName, lastName, page);
             return Ok(result);
         }
 

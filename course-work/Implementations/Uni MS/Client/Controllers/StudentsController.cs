@@ -85,7 +85,7 @@ namespace Client.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _client.PostAsync("/api/students/", model);
+                var response = await _client.PostAsync<StudentViewModel, StudentViewModel>("/api/students/", model);
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
@@ -133,7 +133,7 @@ namespace Client.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([Bind("Id, FirstName,LastName,Age,AverageGrade,CourseId")] StudentViewModel model)
         {
-            var response = await _client.PutAsync("/api/students/", model);
+            var response = await _client.PutAsync<StudentViewModel, StudentViewModel>("/api/students/", model);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {

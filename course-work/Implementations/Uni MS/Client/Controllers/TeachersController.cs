@@ -24,16 +24,20 @@ namespace Client.Controllers
         }
 
         // GET: Teachers
-        public async Task<IActionResult> Index()
-        {
-            var response = await _client.GetAsync<List<TeacherViewModel>>("/api/teachers");
+        public async Task<IActionResult> Index(TeacherIndexViewModel searchModel)
+        {            
+            var response = await _client.GetAsync<List<TeacherViewModel>>("/api/teachers/");
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return RedirectToAction("Login", "Users");
             }
 
-            var model = response.Data;
+            var model = new TeacherIndexViewModel();
+            model.Data = response.Data;
+            model.FirstName = searchModel.FirstName;
+            model.LastName = searchModel.LastName;
+            model.PagesCount = model.Data.Count / 10;
 
             return View(model);
         }
@@ -73,7 +77,7 @@ namespace Client.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _client.PostAsync("/api/teachers/", model);
+                var response = await _client.PostAsync<TeacherViewModel, TeacherViewModel>("/api/teachers/", model);
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
@@ -113,7 +117,7 @@ namespace Client.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _client.PutAsync("/api/teachers/", model);
+                var response = await _client.PutAsync<TeacherViewModel, TeacherViewModel>("/api/teachers/", model);
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {

@@ -84,7 +84,7 @@ namespace Client.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _client.PostAsync("/api/courses/", model);
+                var response = await _client.PostAsync<CourseViewModel, CourseViewModel>("/api/courses/", model);
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
@@ -132,7 +132,7 @@ namespace Client.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _client.PutAsync("/api/courses/", model);
+                var response = await _client.PutAsync<CourseViewModel, CourseViewModel>("/api/courses/", model);
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {

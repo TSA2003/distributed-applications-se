@@ -18,7 +18,7 @@ namespace Client.Helpers
             _baseUrl = appSettings.Value.BaseUrl;
         }
 
-        public async Task<ApiResponseResult<TResponseModel>> GetAsync<TRequestModel, TResponseModel>(string url) where TRequestModel : class where TResponseModel : class
+        public async Task<ApiResponseResult<TResponseModel>> GetAsync<TResponseModel>(string url) where TResponseModel : class
         {
             var result = new ApiResponseResult<TResponseModel>();
 
@@ -67,14 +67,15 @@ namespace Client.Helpers
             return result;
         }
 
-        public async Task<ApiResponseResult<TModel>> PutAsync<TModel>(string url, TModel data) where TModel : class
+        public async Task<ApiResponseResult<TResponseModel>> PutAsync<TRequestModel, TResponseModel>(string url, TRequestModel data) where TRequestModel : class where TResponseModel : class
         {
-            var result = new ApiResponseResult<TModel>();
+            var result = new ApiResponseResult<TResponseModel>();
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _sessionStorage.Token);
             var body = JsonContent.Create(data);
             var response = await _httpClient.PutAsync(_baseUrl + url, body);
             result.StatusCode = response.StatusCode;
+
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 _sessionStorage.Token = "";              
@@ -83,9 +84,9 @@ namespace Client.Helpers
             return result;
         }
 
-        public async Task<ApiResponseResult<TModel>> DeleteAsync<TModel>(string url) where TModel : class
+        public async Task<ApiResponseResult<TResponseModel>> DeleteAsync<TResponseModel>(string url) where TResponseModel : class
         {
-            var result = new ApiResponseResult<TModel>();
+            var result = new ApiResponseResult<TResponseModel>();
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _sessionStorage.Token);
             var response = await _httpClient.DeleteAsync(_baseUrl + url);
